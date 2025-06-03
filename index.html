@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>License Distribution Pie Charts</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9fafb;
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .chart-container {
+        display: flex;
+        flex-direction: row;
+        gap: 40px;
+        justify-content: center;
+        align-items: stretch;
+        width: 100vw;
+        max-width: 1100px;
+        padding: 40px 0;
+        box-sizing: border-box;
+      }
+      .chart-wrapper {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 30px 20px 20px 20px;
+        text-align: center;
+        max-width: 430px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      canvas {
+        max-width: 320px;
+        width: 100%;
+        margin: 0 auto;
+        height: 320px !important;
+      }
+      h2 {
+        font-size: 1.2em;
+        margin-bottom: 20px;
+        color: #1f2937;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chart-container">
+      <div class="chart-wrapper">
+        <h2>Overall License Distribution</h2>
+        <canvas id="overallChart"></canvas>
+      </div>
+      <div class="chart-wrapper">
+        <h2>Country-wise Distribution <br />(License Discovered)</h2>
+        <canvas id="countryChart"></canvas>
+      </div>
+    </div>
+
+    <script>
+      // Data for overall distribution
+      const overallData = {
+        labels: [
+          "License Discovered",
+          "License Not Discovered",
+          "Old Licenses",
+        ],
+        datasets: [
+          {
+            data: [654, 1405, 713],
+            backgroundColor: [
+              "#3b82f6", // Blue
+              "#10b981", // Green
+              "#f97316", // Orange
+            ],
+            borderWidth: 1,
+            borderColor: "#ffffff",
+          },
+        ],
+      };
+
+      // Data for country-wise distribution
+      const countryData = {
+        labels: [
+          "Brazil",
+          "China",
+          "France",
+          "Germanu",
+          "India",
+          "Japan",
+          "Mexico",
+          "NA",
+          "Palmela",
+          "Romania",
+          "Sofia",
+          "South Korea",
+          "Thailand",
+          "UK",
+          "USA",
+        ],
+        datasets: [
+          {
+            data: [4, 39, 3, 10, 328, 19, 102, 5, 18, 6, 72, 2, 1, 14, 31],
+            backgroundColor: [
+              "#3b82f6",
+              "#10b981",
+              "#f97316",
+              "#8b5cf6",
+              "#ef4444",
+              "#f59e0b",
+              "#ec4899",
+              "#6b7280",
+              "#14b8a6",
+              "#d946ef",
+              "#84cc16",
+              "#06b6d4",
+              "#f43f5e",
+              "#6366f1",
+              "#eab308",
+            ],
+            borderWidth: 1,
+            borderColor: "#ffffff",
+          },
+        ],
+      };
+
+      // Function to format labels with count and percentage
+      const labelFormatter = (tooltipItem) => {
+        const dataset = tooltipItem.dataset;
+        const total = dataset.data.reduce((a, b) => a + b, 0);
+        const value = dataset.data[tooltipItem.dataIndex];
+        const percentage = ((value / total) * 100).toFixed(1);
+        return `${tooltipItem.label}: ${value} (${percentage}%)`;
+      };
+
+      // Chart for overall distribution (pie)
+      new Chart(document.getElementById("overallChart"), {
+        type: "pie",
+        data: overallData,
+        options: {
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: {
+                boxWidth: 15,
+                padding: 15,
+                font: {
+                  size: 12,
+                },
+              },
+            },
+            tooltip: {
+              callbacks: {
+                label: labelFormatter,
+              },
+            },
+          },
+        },
+      });
+
+      // Chart for country-wise distribution (doughnut)
+      new Chart(document.getElementById("countryChart"), {
+        type: "doughnut",
+        data: countryData,
+        options: {
+          cutout: "60%", // Make it look like a ring
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: {
+                boxWidth: 15,
+                padding: 15,
+                font: {
+                  size: 12,
+                },
+              },
+            },
+            tooltip: {
+              callbacks: {
+                label: labelFormatter,
+              },
+            },
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
