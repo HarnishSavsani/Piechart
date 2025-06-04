@@ -3,190 +3,175 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>License Distribution Pie Charts</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>License Distribution</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
     <style>
       body {
-        font-family: Arial, sans-serif;
+        font-family: "Inter", "Arial", sans-serif;
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 24px;
         background-color: #f9fafb;
-        margin: 0;
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+      }
+      h1 {
+        text-align: center;
+        color: #1f2937;
+        font-size: 1.875rem;
+        font-weight: 600;
+        margin-bottom: 24px;
+      }
+      h2 {
+        text-align: center;
+        color: #1f2937;
+        font-size: 1.25rem;
+        font-weight: 500;
+        margin-bottom: 16px;
       }
       .chart-container {
         display: flex;
-        flex-direction: row;
-        gap: 40px;
-        justify-content: center;
-        align-items: stretch;
-        width: 100vw;
-        max-width: 1100px;
-        padding: 40px 0;
-        box-sizing: border-box;
+        justify-content: space-between;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+        padding: 0 200px;
       }
       .chart-wrapper {
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        padding: 30px 20px 20px 20px;
-        text-align: center;
-        max-width: 430px;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        width: 400px; /* Equal size for both charts */
+        height: 400px;
       }
       canvas {
-        max-width: 320px;
-        width: 100%;
-        margin: 0 auto;
-        height: 320px !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 16px;
       }
-      h2 {
-        font-size: 1.2em;
-        margin-bottom: 20px;
-        color: #1f2937;
+      .download-button {
+        display: block;
+        width: 200px; /* Fixed width to fit text */
+        margin: 24px auto;
+        padding: 10px 20px;
+        background-color: #ff9800;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+      }
+      .download-button:hover {
+        background-color: #e68a00;
       }
     </style>
   </head>
   <body>
     <div class="chart-container">
+      <div>
+        <h2>License Distribution</h2>
+      </div>
+      <div>
+        <a href="license_metadata.xlsx" class="download-button"
+          >Download Excel Report</a
+        >
+      </div>
+    </div>
+    <div class="chart-container">
       <div class="chart-wrapper">
-        <h2>Overall License Distribution</h2>
+        <h3>Overall License Distribution</h3>
         <canvas id="overallChart"></canvas>
       </div>
+      <div style="width: 10px"></div>
       <div class="chart-wrapper">
-        <h2>Country-wise Distribution <br />(License Discovered)</h2>
+        <h3>Country-wise Distribution</h3>
         <canvas id="countryChart"></canvas>
       </div>
     </div>
-
     <script>
-      // Data for overall distribution
-      const overallData = {
-        labels: [
-          "License Discovered",
-          "License Not Discovered",
-          "Old Licenses",
-        ],
-        datasets: [
-          {
-            data: [654, 1405, 713],
-            backgroundColor: [
-              "#3b82f6", // Blue
-              "#10b981", // Green
-              "#f97316", // Orange
-            ],
-            borderWidth: 1,
-            borderColor: "#ffffff",
-          },
-        ],
-      };
-
-      // Data for country-wise distribution
-      const countryData = {
-        labels: [
-          "Brazil",
-          "China",
-          "France",
-          "Germanu",
-          "India",
-          "Japan",
-          "Mexico",
-          "NA",
-          "Palmela",
-          "Romania",
-          "Sofia",
-          "South Korea",
-          "Thailand",
-          "UK",
-          "USA",
-        ],
-        datasets: [
-          {
-            data: [4, 39, 3, 10, 328, 19, 102, 5, 18, 6, 72, 2, 1, 14, 31],
-            backgroundColor: [
-              "#3b82f6",
-              "#10b981",
-              "#f97316",
-              "#8b5cf6",
-              "#ef4444",
-              "#f59e0b",
-              "#ec4899",
-              "#6b7280",
-              "#14b8a6",
-              "#d946ef",
-              "#84cc16",
-              "#06b6d4",
-              "#f43f5e",
-              "#6366f1",
-              "#eab308",
-            ],
-            borderWidth: 1,
-            borderColor: "#ffffff",
-          },
-        ],
-      };
-
-      // Function to format labels with count and percentage
-      const labelFormatter = (tooltipItem) => {
-        const dataset = tooltipItem.dataset;
-        const total = dataset.data.reduce((a, b) => a + b, 0);
-        const value = dataset.data[tooltipItem.dataIndex];
-        const percentage = ((value / total) * 100).toFixed(1);
-        return `${tooltipItem.label}: ${value} (${percentage}%)`;
-      };
-
-      // Chart for overall distribution (pie)
-      new Chart(document.getElementById("overallChart"), {
+      const overallCtx = document
+        .getElementById("overallChart")
+        .getContext("2d");
+      new Chart(overallCtx, {
         type: "pie",
-        data: overallData,
+        data: {
+          labels: [
+            "License Discovered",
+            "License Not Discovered",
+            "Old Licenses",
+          ],
+          datasets: [
+            {
+              data: [654, 1408, 713],
+              backgroundColor: ["#ff9800", "#f44336", "#2196f3"],
+              borderColor: ["#fff", "#fff", "#fff"],
+              borderWidth: 1,
+            },
+          ],
+        },
         options: {
-          plugins: {
-            legend: {
-              position: "bottom",
-              labels: {
-                boxWidth: 15,
-                padding: 15,
-                font: {
-                  size: 12,
-                },
-              },
-            },
-            tooltip: {
-              callbacks: {
-                label: labelFormatter,
-              },
-            },
-          },
+          responsive: true,
+          maintainAspectRatio: false,
+          legend: { position: "top" },
+          title: { display: false },
         },
       });
 
-      // Chart for country-wise distribution (doughnut)
-      new Chart(document.getElementById("countryChart"), {
-        type: "doughnut",
-        data: countryData,
+      const countryCtx = document
+        .getElementById("countryChart")
+        .getContext("2d");
+      new Chart(countryCtx, {
+        type: "doughnut", // Changed to doughnut chart
+        data: {
+          labels: [
+            "Brazil",
+            "China",
+            "France",
+            "Germanu",
+            "India",
+            "Japan",
+            "Mexico",
+            "NA",
+            "Palmela",
+            "Romania",
+            "Sofia",
+            "South Korea",
+            "Thailand",
+            "UK",
+            "USA",
+          ],
+          datasets: [
+            {
+              data: [4, 39, 3, 10, 327, 19, 103, 5, 18, 6, 72, 2, 1, 14, 31],
+              backgroundColor: [
+                "#ff9800",
+                "#f44336",
+                "#2196f3",
+                "#4caf50",
+                "#ffeb3b",
+                "#9c27b0",
+                "#00bcd4",
+                "#e91e63",
+                "#cddc39",
+                "#3f51b5",
+                "#ff5722",
+                "#009688",
+                "#673ab7",
+                "#8bc34a",
+                "#ffc107",
+              ],
+              borderColor: ["#fff"],
+              borderWidth: 1,
+            },
+          ],
+        },
         options: {
-          cutout: "60%", // Make it look like a ring
-          plugins: {
-            legend: {
-              position: "bottom",
-              labels: {
-                boxWidth: 15,
-                padding: 15,
-                font: {
-                  size: 12,
-                },
-              },
-            },
-            tooltip: {
-              callbacks: {
-                label: labelFormatter,
-              },
-            },
-          },
+          responsive: true,
+          maintainAspectRatio: false,
+          legend: { position: "top" },
+          title: { display: false },
+          cutoutPercentage: 50, // Makes it a ring chart
         },
       });
     </script>
